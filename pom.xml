@@ -5,49 +5,8 @@
     <groupId>net.paoding</groupId>
     <artifactId>paoding-rose-parent</artifactId>
     <packaging>pom</packaging>
-    <version>2.0-SNAPSHOT</version>
+    <version>2.1-SNAPSHOT</version>
     <name>paoding-rose-parent</name>
-
-    <!-- 发布配置要求 -->
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>7</version>
-    </parent>
-    <distributionManagement>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-        </repository>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
-
-    <!-- 代码库 -->
-    <scm>
-        <connection>scm:git:git@github.com:paoding-code/paoding-rose.git</connection>
-        <developerConnection>scm:git:git@github.com:paoding-code/paoding-rose.git</developerConnection>
-        <url>git@github.com:paoding-code/paoding-rose.git</url>
-    </scm>
-
-    <!-- 开发人员 -->
-    <developers>
-        <developer>
-            <name>王志亮 Qieqie</name>
-            <email>qieqie.wang@gmail.com</email>
-        </developer>
-        <developer>
-            <name>廖涵 han.liao</name>
-            <email>in355hz@gmail.com</email>
-        </developer>
-        <developer>
-            <name>陈臻 54chen</name>
-            <email>54chen@gmail.com</email>
-        </developer>
-    </developers>
-
     <!-- 模块 -->
     <modules>
         <module>paoding-rose-load</module>
@@ -74,7 +33,7 @@
     <!-- 所有的依赖的版本都必须要在这里定义好，不在具体的dependency写实际的version -->
     <properties>
         <junit.version>4.6</junit.version>
-        <spring.version>3.2.4.RELEASE</spring.version>
+        <spring.version>4.2.4.RELEASE</spring.version>
         <commons-lang.version>2.4</commons-lang.version>
         <commons-logging.version>1.1.1</commons-logging.version>
         <commons-fileupload.version>1.2.2</commons-fileupload.version>
@@ -98,27 +57,27 @@
             <dependency>
                 <groupId>net.paoding</groupId>
                 <artifactId>paoding-rose</artifactId>
-                <version>2.0-SNAPSHOT</version>
+                <version>2.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>net.paoding</groupId>
                 <artifactId>paoding-rose-web</artifactId>
-                <version>2.0-SNAPSHOT</version>
+                <version>2.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>net.paoding</groupId>
                 <artifactId>paoding-rose-jade</artifactId>
-                <version>2.0-SNAPSHOT</version>
+                <version>2.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>net.paoding</groupId>
                 <artifactId>paoding-rose-pipe</artifactId>
-                <version>2.0-SNAPSHOT</version>
+                <version>2.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>net.paoding</groupId>
                 <artifactId>paoding-rose-load</artifactId>
-                <version>2.0-SNAPSHOT</version>
+                <version>2.1-SNAPSHOT</version>
             </dependency>
 
             <!-- test scope -->
@@ -289,8 +248,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.3</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
@@ -302,6 +261,7 @@
                 <configuration>
                     <charset>UTF-8</charset>
                     <aggregate>true</aggregate>
+                    <additionalparam>-Xdoclint:none</additionalparam>
                 </configuration>
                 <executions>
                     <execution>
@@ -317,6 +277,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
                 <version>1.6</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>
