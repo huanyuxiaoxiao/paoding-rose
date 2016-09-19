@@ -15,17 +15,17 @@
  */
 package net.paoding.rose.web.instruction;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-
-import javax.servlet.http.HttpServletResponse;
-
 import net.paoding.rose.web.Invocation;
-
+import net.paoding.rose.web.annotation.rest.ContentType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.reflect.Method;
 
 /**
  * 
@@ -72,8 +72,15 @@ public class TextInstruction extends AbstractInstruction {
                         + response.getCharacterEncoding());
             }
         }
-        
-        if (response.getContentType() == null) {
+        //
+        Method method = inv.getMethod();
+        if (method.isAnnotationPresent(ContentType.class)) {
+            response.setContentType(method.getAnnotation(ContentType.class).value());
+            if (logger.isDebugEnabled()) {
+                logger.debug("set response content-type by @ContentType value: "
+                        + response.getContentType());
+            }
+        } else {
             response.setContentType("text/html");
             if (logger.isDebugEnabled()) {
                 logger.debug("set response content-type by default: "
