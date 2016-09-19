@@ -91,6 +91,10 @@ public class TextInstruction extends AbstractInstruction {
     }
 
     private void sendResponse(HttpServletResponse response, String text) throws IOException {
+        if(text.startsWith("json:")){
+            response.setContentType("text/json");
+            text=text.substring(5);
+        }
         if (StringUtils.isNotEmpty(text)) {
             PrintWriter out = response.getWriter();
             if (logger.isDebugEnabled()) {
