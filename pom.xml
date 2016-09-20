@@ -47,6 +47,7 @@
         <velocity.version>1.7</velocity.version>
         <velocity-tools.version>2.0</velocity-tools.version>
         <json-rpc.version>1.0</json-rpc.version>
+        <fastjson.version>1.2.8</fastjson.version>
     </properties>
 
 
@@ -184,6 +185,11 @@
                 <groupId>com.metaparadigm</groupId>
                 <artifactId>json-rpc</artifactId>
                 <version>${json-rpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjson.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -15,13 +15,11 @@
  */
 package net.paoding.rose.web.paramresolver;
 
-import java.lang.reflect.Method;
-
+import net.paoding.rose.exception.ParamFormatException;
 import net.paoding.rose.web.Invocation;
 import net.paoding.rose.web.annotation.DefValue;
 import net.paoding.rose.web.annotation.Param;
 import net.paoding.rose.web.impl.validation.ParameterBindingResult;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.TypeConverter;
@@ -29,6 +27,8 @@ import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 import org.springframework.validation.FieldError;
+
+import java.lang.reflect.Method;
 
 /**
  * @author 王志亮 [qieqie.wang@gmail.com]
@@ -107,7 +107,6 @@ public final class MethodParameterResolver {
                 }
             } catch (TypeMismatchException e) {
                 // 出现这个错误肯定是解析一般参数失败导致的，而非bean里面的某个属性值的解析失败
-
                 logger.debug("", e);
 
                 // 对简单类型的参数，设置一个默认值给它以支持对该方法的继续调用
@@ -139,7 +138,7 @@ public final class MethodParameterResolver {
                                 .value(), paramMetaDatas[i].getParamType());
                     }
                 }
-                // 
+                //
                 String paramName = parameterNames[i];
                 if (paramName == null) {
                     for (String name : paramMetaDatas[i].getParamNames()) {
@@ -159,7 +158,9 @@ public final class MethodParameterResolver {
                         null // the default message to be used to resolve this message
                 );
                 parameterBindingResult.addError(fieldError);
-            } catch (Exception e) {
+            }catch (ParamFormatException e){
+                throw e;
+            }catch (Exception e) {
                 // 什么错误呢？比如很有可能是构造对象不能成功导致的错误，没有默认构造函数、构造函数执行失败等等
                 logger.error("", e);
                 throw e;

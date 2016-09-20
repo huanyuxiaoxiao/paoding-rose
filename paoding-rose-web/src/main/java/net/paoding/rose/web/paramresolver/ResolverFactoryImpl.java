@@ -16,46 +16,17 @@
  */
 package net.paoding.rose.web.paramresolver;
 
-import java.beans.PropertyEditorSupport;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
+import com.alibaba.fastjson.JSONObject;
+import net.paoding.rose.exception.ParamFormatException;
 import net.paoding.rose.util.RoseBeanUtils;
+import net.paoding.rose.util.SpringUtils;
 import net.paoding.rose.web.Invocation;
-import net.paoding.rose.web.annotation.Create;
-import net.paoding.rose.web.annotation.DefValue;
-import net.paoding.rose.web.annotation.FlashParam;
-import net.paoding.rose.web.annotation.Param;
-import net.paoding.rose.web.annotation.Pattern;
+import net.paoding.rose.web.annotation.*;
 import net.paoding.rose.web.impl.module.Module;
 import net.paoding.rose.web.impl.thread.InvocationBean;
 import net.paoding.rose.web.impl.thread.Rose;
 import net.paoding.rose.web.var.Flash;
 import net.paoding.rose.web.var.Model;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -74,6 +45,20 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.util.WebUtils;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.beans.PropertyEditorSupport;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * @author 王志亮 [qieqie.wang@gmail.com]
@@ -943,7 +928,7 @@ public class ResolverFactoryImpl implements ResolverFactory {
         }
 
         @Override
-        public Object resolve(Invocation inv, ParamMetaData metaData) {
+        public Object resolve(Invocation inv, ParamMetaData metaData) throws ParamFormatException {
             String toConvert = null;
             // 
             FlashParam flashParam = metaData.getAnnotation(FlashParam.class);
@@ -959,6 +944,26 @@ public class ResolverFactoryImpl implements ResolverFactory {
                     }
                 }
             }
+            //url无法获取参数值 则从body中获取  默认Body中为json 否则不从此获取
+            if(toConvert==null&&inv.getRequest().getMethod().equalsIgnoreCase("Get")){
+                try {
+                    HttpServletRequest request = inv.getRequest();
+                    int contentLength = request.getContentLength();
+                    String bodySummary = new String(SpringUtils.readBytes(request.getInputStream(), contentLength));
+                    JSONObject bodyJson=JSONObject.parseObject(bodySummary);
+                    for (String paramName : metaData.getParamNames()) {
+                        if (paramName != null) {
+                            toConvert = bodyJson.get(paramName).toString();
+                            if (toConvert != null) {
+                                break;
+                            }
+                        }
+                    }
+                } catch (IOException e) {
+                    logger.warn("转换body内容异常,放弃获取", e);
+                }
+
+            }
             if (toConvert == null) {
                 DefValue defValudeAnnotation = metaData.getAnnotation(DefValue.class);
                 if (defValudeAnnotation != null
@@ -968,6 +973,7 @@ public class ResolverFactoryImpl implements ResolverFactory {
             }
             if (toConvert != null) {
                 SimpleTypeConverter typeConverter = SafedTypeConverterFactory.getCurrentConverter();
+                checkConvertType(toConvert,metaData);
                 return typeConverter.convertIfNecessary(toConvert, metaData.getParamType());
             }
             if (metaData.getParamType().isPrimitive()) {
@@ -989,6 +995,16 @@ public class ResolverFactoryImpl implements ResolverFactory {
                 }
             }
             return null;
+        }
+
+        private void checkConvertType(String toConvert, ParamMetaData metaData) throws ParamFormatException {
+            try {
+                JSONObject.parseObject(toConvert,metaData.getParamType());
+            }catch (Exception e){
+
+                logger.error(String.format("param(%s) can't case by %s",toConvert,metaData.getParamType()));
+                throw new ParamFormatException(String.format("param(%s) can't case by %s",toConvert,metaData.getParamType()));
+            }
         }
     }
 
