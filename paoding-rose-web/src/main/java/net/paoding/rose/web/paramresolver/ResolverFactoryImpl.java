@@ -945,7 +945,7 @@ public class ResolverFactoryImpl implements ResolverFactory {
                 }
             }
             //url无法获取参数值 则从body中获取  默认Body中为json 否则不从此获取
-            if(toConvert==null&&inv.getRequest().getMethod().equalsIgnoreCase("Get")){
+            if(toConvert==null&&!inv.getRequest().getMethod().equalsIgnoreCase("Get")){
                 try {
                     HttpServletRequest request = inv.getRequest();
                     int contentLength = request.getContentLength();
