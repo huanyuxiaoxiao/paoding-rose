@@ -16,7 +16,6 @@
 package net.paoding.rose.web.instruction;
 
 import net.paoding.rose.web.Invocation;
-import net.paoding.rose.web.annotation.rest.ContentType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,7 +24,6 @@ import org.springframework.util.Assert;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.Method;
 
 /**
  * 
@@ -72,15 +70,14 @@ public class TextInstruction extends AbstractInstruction {
                         + response.getCharacterEncoding());
             }
         }
-        //
-        Method method = inv.getMethod();
-        if (method.isAnnotationPresent(ContentType.class)) {
-            response.setContentType(method.getAnnotation(ContentType.class).value());
+        if (text.startsWith("json:")) {
+            response.setContentType("text/json");
+            text = text.substring(5);
             if (logger.isDebugEnabled()) {
-                logger.debug("set response content-type by @ContentType value: "
+                logger.debug("set response content-type by: "
                         + response.getContentType());
             }
-        } else {
+        } else if (response.getContentType() == null) {
             response.setContentType("text/html");
             if (logger.isDebugEnabled()) {
                 logger.debug("set response content-type by default: "
@@ -91,10 +88,6 @@ public class TextInstruction extends AbstractInstruction {
     }
 
     private void sendResponse(HttpServletResponse response, String text) throws IOException {
-        if(text.startsWith("json:")){
-            response.setContentType("text/json");
-            text=text.substring(5);
-        }
         if (StringUtils.isNotEmpty(text)) {
             PrintWriter out = response.getWriter();
             if (logger.isDebugEnabled()) {
